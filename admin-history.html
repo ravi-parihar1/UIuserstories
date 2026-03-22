@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Admin History</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation Admin</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('admin-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-reservations.html')">Reservations</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-billing.html')">Billing</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('room-status.html')">Room Status</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Admin</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">All Booking History</h1>
+            <p style="color: #666; margin-bottom: 30px;">Review all user booking records and analytics</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="displayBookings()">🔄 Refresh</button>
+                <button class="btn btn-success" onclick="exportAllHistory()">📊 Export All Data</button>
+                <button class="btn btn-warning" onclick="generateReport()">📈 Generate Report</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>System Statistics</h2>
+            <div class="grid grid-4">
+                <div class="text-center">
+                    <h3 style="color: #667eea; font-size: 2em;" id="totalSystemBookings">0</h3>
+                    <p>Total Bookings</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #51cf66; font-size: 2em;" id="activeSystemBookings">0</h3>
+                    <p>Active Bookings</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #ffa502; font-size: 2em;" id="completedSystemBookings">0</h3>
+                    <p>Completed</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #ff4757; font-size: 2em;" id="systemRevenue">$0</h3>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>All Bookings</h2>
+            <div id="bookingsList">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            displayBookings();
+            updateSystemStats();
+        });
+        
+        function updateSystemStats() {
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            const today = new Date();
+            
+            const totalBookings = bookings.length;
+            const activeBookings = bookings.filter(b => b.status === 'confirmed' && new Date(b.checkIn) <= today && new Date(b.checkOut) >= today).length;
+            const completedBookings = bookings.filter(b => new Date(b.checkOut) < today).length;
+            const totalRevenue = bills.filter(b => b.status === 'paid').reduce((sum, bill) => sum + bill.totalAmount, 0);
+            
+            document.getElementById('totalSystemBookings').textContent = totalBookings;
+            document.getElementById('activeSystemBookings').textContent = activeBookings;
+            document.getElementById('completedSystemBookings').textContent = completedBookings;
+            document.getElementById('systemRevenue').textContent = `$${totalRevenue}`;
+        }
+        
+        function exportAllHistory() {
+            const data = {
+                bookings: JSON.parse(localStorage.getItem('hotelBookings') || '[]'),
+                reservations: JSON.parse(localStorage.getItem('hotelReservations') || '[]'),
+                bills: JSON.parse(localStorage.getItem('hotelBills') || '[]'),
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `complete-history-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Complete history exported successfully!', 'success');
+        }
+        
+        function generateReport() {
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            const users = JSON.parse(localStorage.getItem('hotelUsers') || '[]');
+            
+            const report = {
+                summary: {
+                    totalUsers: users.length,
+                    totalBookings: bookings.length,
+                    totalRevenue: bills.filter(b => b.status === 'paid').reduce((sum, bill) => sum + bill.totalAmount, 0),
+                    generatedAt: new Date().toISOString()
+                },
+                roomTypeStats: {},
+                monthlyStats: {}
+            };
+            
+            // Calculate room type statistics
+            bookings.forEach(booking => {
+                if (!report.roomTypeStats[booking.roomType]) {
+                    report.roomTypeStats[booking.roomType] = 0;
+                }
+                report.roomTypeStats[booking.roomType]++;
+            });
+            
+            // Generate report HTML
+            const reportHtml = `
+                <div class="card">
+                    <h2>System Report</h2>
+                    <div class="grid grid-2">
+                        <div>
+                            <h3>Summary</h3>
+                            <p><strong>Total Users:</strong> ${report.summary.totalUsers}</p>
+                            <p><strong>Total Bookings:</strong> ${report.summary.totalBookings}</p>
+                            <p><strong>Total Revenue:</strong> $${report.summary.totalRevenue}</p>
+                            <p><strong>Generated:</strong> ${new Date(report.summary.generatedAt).toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <h3>Room Type Statistics</h3>
+                            ${Object.entries(report.roomTypeStats).map(([type, count]) => 
+                                `<p><strong>${type}:</strong> ${count} bookings</p>`
+                            ).join('')}
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="closeReport()">Close</button>
+                        <button class="btn btn-secondary" onclick="downloadReport()">Download Report</button>
+                    </div>
+                </div>
+            `;
+            
+            document.querySelector('.container').innerHTML = reportHtml;
+        }
+        
+        function closeReport() {
+            location.reload();
+        }
+        
+        function downloadReport() {
+            const report = {
+                summary: {
+                    totalUsers: JSON.parse(localStorage.getItem('hotelUsers') || '[]').length,
+                    totalBookings: JSON.parse(localStorage.getItem('hotelBookings') || '[]').length,
+                    totalRevenue: JSON.parse(localStorage.getItem('hotelBills') || '[]').filter(b => b.status === 'paid').reduce((sum, bill) => sum + bill.totalAmount, 0),
+                    generatedAt: new Date().toISOString()
+                }
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `system-report-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Report downloaded successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

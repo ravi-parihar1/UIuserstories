@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Admin Reservations</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation Admin</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('admin-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-reservations.html')">Reservations</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-billing.html')">Billing</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('room-status.html')">Room Status</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Admin</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">Manage Reservations</h1>
+            <p style="color: #666; margin-bottom: 30px;">Review and manage customer reservation requests</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="displayReservations()">🔄 Refresh</button>
+                <button class="btn btn-success" onclick="approveAllReservations()">✅ Approve All</button>
+                <button class="btn btn-warning" onclick="exportReservations()">📊 Export Data</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Reservation Requests</h2>
+            <div id="reservationsList">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            displayReservations();
+        });
+        
+        function approveAllReservations() {
+            const reservations = JSON.parse(localStorage.getItem('hotelReservations') || '[]');
+            const pendingReservations = reservations.filter(r => r.status === 'pending');
+            
+            if (pendingReservations.length === 0) {
+                showNotification('No pending reservations to approve!', 'warning');
+                return;
+            }
+            
+            pendingReservations.forEach(reservation => {
+                updateReservationStatus(reservation.id, 'approved');
+            });
+            
+            showNotification(`Approved ${pendingReservations.length} reservations!`, 'success');
+        }
+        
+        function exportReservations() {
+            const reservations = JSON.parse(localStorage.getItem('hotelReservations') || '[]');
+            const dataStr = JSON.stringify(reservations, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `reservations-export-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Reservations exported successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

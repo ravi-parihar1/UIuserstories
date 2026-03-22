@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Make Reservation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('customer-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('reservation.html')">Reservation</a></li>
+                    <li><a href="#" onclick="navigateTo('billing.html')">Billing Page</a></li>
+                    <li><a href="#" onclick="navigateTo('history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('bookings.html')">Bookings</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Contact Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Guest</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">Make a Reservation</h1>
+            <p style="color: #666; margin-bottom: 30px;">Book your perfect stay with us</p>
+            
+            <div class="grid grid-2">
+                <div>
+                    <form id="reservationForm" onsubmit="handleReservation(event)">
+                        <div class="form-group">
+                            <label for="checkIn">Check-in Date *</label>
+                            <input type="date" id="checkIn" name="checkIn" required onchange="validateDates('checkIn', 'checkOut')">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="checkOut">Check-out Date *</label>
+                            <input type="date" id="checkOut" name="checkOut" required onchange="validateDates('checkIn', 'checkOut')">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="roomType">Room Type *</label>
+                            <select id="roomType" name="roomType" required onchange="updateRoomPrice()">
+                                <option value="">Select a room type</option>
+                                <option value="Single">Single Room - $100/night</option>
+                                <option value="Double">Double Room - $150/night</option>
+                                <option value="Suite">Suite - $250/night</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="guests">Number of Guests *</label>
+                            <select id="guests" name="guests" required>
+                                <option value="">Select number of guests</option>
+                                <option value="1">1 Guest</option>
+                                <option value="2">2 Guests</option>
+                                <option value="3">3 Guests</option>
+                                <option value="4">4 Guests</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specialRequests">Special Requests</label>
+                            <textarea id="specialRequests" name="specialRequests" rows="4" placeholder="Any special requests or requirements..."></textarea>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">Submit Reservation</button>
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">Clear Form</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div>
+                    <div class="card">
+                        <h3>Room Information</h3>
+                        <div id="roomInfo">
+                            <p style="color: #666;">Select a room type to see details and pricing</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Price Calculator</h3>
+                        <div id="priceCalculator">
+                            <p><strong>Room Rate:</strong> <span id="roomRate">$0/night</span></p>
+                            <p><strong>Number of Nights:</strong> <span id="numNights">0</span></p>
+                            <p><strong>Total Amount:</strong> <span id="totalAmount" style="font-size: 1.2em; color: #667eea;">$0</span></p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Hotel Policies</h3>
+                        <ul style="color: #666; line-height: 1.6;">
+                            <li>Check-in time: 2:00 PM</li>
+                            <li>Check-out time: 11:00 AM</li>
+                            <li>Free cancellation up to 24 hours before check-in</li>
+                            <li>Valid ID required at check-in</li>
+                            <li>No smoking in rooms</li>
+                            <li>Pets allowed with additional fee</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Available Rooms</h2>
+            <div class="grid grid-3">
+                <div class="card" style="text-align: center; border: 2px solid #e1e8ed;">
+                    <h3>🛏️ Single Room</h3>
+                    <p style="color: #666;">Perfect for solo travelers</p>
+                    <ul style="text-align: left; color: #666; margin: 10px 0;">
+                        <li>1 Queen Bed</li>
+                        <li>Free WiFi</li>
+                        <li>Breakfast Included</li>
+                        <li>City View</li>
+                    </ul>
+                    <p style="font-size: 24px; color: #667eea; font-weight: bold;">$100/night</p>
+                    <button class="btn btn-primary" onclick="selectRoomType('Single')">Select This Room</button>
+                </div>
+                
+                <div class="card" style="text-align: center; border: 2px solid #e1e8ed;">
+                    <h3>🛏️ Double Room</h3>
+                    <p style="color: #666;">Ideal for couples or friends</p>
+                    <ul style="text-align: left; color: #666; margin: 10px 0;">
+                        <li>1 King Bed or 2 Queen Beds</li>
+                        <li>Free WiFi</li>
+                        <li>Breakfast Included</li>
+                        <li>City View</li>
+                    </ul>
+                    <p style="font-size: 24px; color: #667eea; font-weight: bold;">$150/night</p>
+                    <button class="btn btn-primary" onclick="selectRoomType('Double')">Select This Room</button>
+                </div>
+                
+                <div class="card" style="text-align: center; border: 2px solid #e1e8ed;">
+                    <h3>🏨 Suite</h3>
+                    <p style="color: #666;">Luxury accommodation</p>
+                    <ul style="text-align: left; color: #666; margin: 10px 0;">
+                        <li>Separate Living Room</li>
+                        <li>King Size Bed</li>
+                        <li>Free WiFi & Premium Channels</li>
+                        <li>Ocean View</li>
+                    </ul>
+                    <p style="font-size: 24px; color: #667eea; font-weight: bold;">$250/night</p>
+                    <button class="btn btn-primary" onclick="selectRoomType('Suite')">Select This Room</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Set minimum date to today
+        window.addEventListener('load', function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkIn').setAttribute('min', today);
+            document.getElementById('checkOut').setAttribute('min', today);
+        });
+        
+        function updateRoomPrice() {
+            const roomType = document.getElementById('roomType').value;
+            const roomInfo = document.getElementById('roomInfo');
+            const roomRate = document.getElementById('roomRate');
+            
+            const roomDetails = {
+                'Single': {
+                    price: 100,
+                    description: 'Comfortable single room with queen bed',
+                    features: ['Queen Bed', 'Free WiFi', 'Breakfast Included', 'City View']
+                },
+                'Double': {
+                    price: 150,
+                    description: 'Spacious double room with king bed or two queens',
+                    features: ['King Bed or 2 Queens', 'Free WiFi', 'Breakfast Included', 'City View']
+                },
+                'Suite': {
+                    price: 250,
+                    description: 'Luxury suite with separate living area',
+                    features: ['Separate Living Room', 'King Size Bed', 'Premium Amenities', 'Ocean View']
+                }
+            };
+            
+            if (roomType && roomDetails[roomType]) {
+                const room = roomDetails[roomType];
+                roomRate.textContent = `$${room.price}/night`;
+                
+                let html = `
+                    <h4>${roomType} Room</h4>
+                    <p>${room.description}</p>
+                    <ul style="color: #666;">
+                `;
+                
+                room.features.forEach(feature => {
+                    html += `<li>${feature}</li>`;
+                });
+                
+                html += `</ul>`;
+                roomInfo.innerHTML = html;
+            } else {
+                roomInfo.innerHTML = '<p style="color: #666;">Select a room type to see details and pricing</p>';
+                roomRate.textContent = '$0/night';
+            }
+            
+            calculatePrice();
+        }
+        
+        function calculatePrice() {
+            const checkIn = document.getElementById('checkIn').value;
+            const checkOut = document.getElementById('checkOut').value;
+            const roomType = document.getElementById('roomType').value;
+            
+            if (checkIn && checkOut && roomType) {
+                const startDate = new Date(checkIn);
+                const endDate = new Date(checkOut);
+                const nights = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+                
+                const prices = {
+                    'Single': 100,
+                    'Double': 150,
+                    'Suite': 250
+                };
+                
+                const totalAmount = nights * prices[roomType];
+                
+                document.getElementById('numNights').textContent = nights;
+                document.getElementById('totalAmount').textContent = `$${totalAmount}`;
+            } else {
+                document.getElementById('numNights').textContent = '0';
+                document.getElementById('totalAmount').textContent = '$0';
+            }
+        }
+        
+        function selectRoomType(roomType) {
+            document.getElementById('roomType').value = roomType;
+            updateRoomPrice();
+            
+            // Scroll to form
+            document.getElementById('reservationForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function resetForm() {
+            document.getElementById('reservationForm').reset();
+            document.getElementById('roomInfo').innerHTML = '<p style="color: #666;">Select a room type to see details and pricing</p>';
+            document.getElementById('roomRate').textContent = '$0/night';
+            document.getElementById('numNights').textContent = '0';
+            document.getElementById('totalAmount').textContent = '$0';
+        }
+        
+        // Update price calculation when dates change
+        document.getElementById('checkIn').addEventListener('change', calculatePrice);
+        document.getElementById('checkOut').addEventListener('change', calculatePrice);
+    </script>
+</body>
+</html>

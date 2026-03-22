@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Room Status</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation Admin</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('admin-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-reservations.html')">Reservations</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-billing.html')">Billing</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('room-status.html')">Room Status</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Admin</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">Room Status Management</h1>
+            <p style="color: #666; margin-bottom: 30px;">Monitor and manage room availability and status</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="displayRoomStatus()">🔄 Refresh</button>
+                <button class="btn btn-success" onclick="addNewRoom()">➕ Add Room</button>
+                <button class="btn btn-warning" onclick="exportRoomData()">📊 Export Data</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Room Overview</h2>
+            <div class="grid grid-4">
+                <div class="text-center">
+                    <h3 style="color: #51cf66; font-size: 2em;" id="availableRoomsCount">0</h3>
+                    <p>Available</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #ff4757; font-size: 2em;" id="occupiedRoomsCount">0</h3>
+                    <p>Occupied</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #ffa502; font-size: 2em;" id="maintenanceRoomsCount">0</h3>
+                    <p>Maintenance</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #667eea; font-size: 2em;" id="totalRoomsCount">0</h3>
+                    <p>Total Rooms</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Room Status Details</h2>
+            <div id="roomStatusList">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Room Status Legend</h2>
+            <div class="grid grid-3">
+                <div class="card text-center">
+                    <span class="status-badge status-available" style="font-size: 16px; padding: 10px 20px;">Available</span>
+                    <p>Room is ready for booking</p>
+                </div>
+                <div class="card text-center">
+                    <span class="status-badge status-occupied" style="font-size: 16px; padding: 10px 20px;">Occupied</span>
+                    <p>Room is currently occupied</p>
+                </div>
+                <div class="card text-center">
+                    <span class="status-badge status-pending" style="font-size: 16px; padding: 10px 20px;">Maintenance</span>
+                    <p>Room is under maintenance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Room Modal -->
+    <div id="addRoomModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+        <div class="card" style="max-width: 500px; width: 90%;">
+            <h2>Add New Room</h2>
+            <form id="addRoomForm" onsubmit="handleAddRoom(event)">
+                <div class="form-group">
+                    <label for="newRoomNumber">Room Number</label>
+                    <input type="number" id="newRoomNumber" name="roomNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="newRoomType">Room Type</label>
+                    <select id="newRoomType" name="roomType" required>
+                        <option value="Single">Single</option>
+                        <option value="Double">Double</option>
+                        <option value="Suite">Suite</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newRoomPrice">Price per Night</label>
+                    <input type="number" id="newRoomPrice" name="price" required>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Add Room</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAddRoomModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            displayRoomStatus();
+            updateRoomStats();
+        });
+        
+        function updateRoomStats() {
+            const rooms = JSON.parse(localStorage.getItem('hotelRooms') || '[]');
+            const available = rooms.filter(r => r.status === 'available').length;
+            const occupied = rooms.filter(r => r.status === 'occupied').length;
+            const maintenance = rooms.filter(r => r.status === 'maintenance').length;
+            const total = rooms.length;
+            
+            document.getElementById('availableRoomsCount').textContent = available;
+            document.getElementById('occupiedRoomsCount').textContent = occupied;
+            document.getElementById('maintenanceRoomsCount').textContent = maintenance;
+            document.getElementById('totalRoomsCount').textContent = total;
+        }
+        
+        function addNewRoom() {
+            document.getElementById('addRoomModal').style.display = 'flex';
+        }
+        
+        function closeAddRoomModal() {
+            document.getElementById('addRoomModal').style.display = 'none';
+            document.getElementById('addRoomForm').reset();
+        }
+        
+        function handleAddRoom(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const newRoom = {
+                id: parseInt(formData.get('roomNumber')),
+                type: formData.get('roomType'),
+                price: parseInt(formData.get('price')),
+                status: 'available'
+            };
+            
+            const rooms = JSON.parse(localStorage.getItem('hotelRooms') || '[]');
+            
+            // Check if room number already exists
+            if (rooms.find(r => r.id === newRoom.id)) {
+                showNotification('Room number already exists!', 'error');
+                return;
+            }
+            
+            rooms.push(newRoom);
+            localStorage.setItem('hotelRooms', JSON.stringify(rooms));
+            
+            showNotification('Room added successfully!', 'success');
+            closeAddRoomModal();
+            displayRoomStatus();
+            updateRoomStats();
+        }
+        
+        function exportRoomData() {
+            const rooms = JSON.parse(localStorage.getItem('hotelRooms') || '[]');
+            const dataStr = JSON.stringify(rooms, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `room-status-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Room data exported successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

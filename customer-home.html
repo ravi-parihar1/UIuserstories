@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Customer Home</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('customer-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('reservation.html')">Reservation</a></li>
+                    <li><a href="#" onclick="navigateTo('billing.html')">Billing Page</a></li>
+                    <li><a href="#" onclick="navigateTo('history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('bookings.html')">Bookings</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Contact Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Guest</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">Welcome to Your Dashboard</h1>
+            <p style="color: #666; font-size: 18px; margin-bottom: 30px;">Manage your hotel reservations and bookings with ease</p>
+            
+            <div class="grid grid-3">
+                <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                    <h3>🛏️ Make Reservation</h3>
+                    <p>Book your perfect room for your stay</p>
+                    <button class="btn btn-secondary" style="background: white; color: #667eea;" onclick="navigateTo('reservation.html')">Book Now</button>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, #51cf66 0%, #40c057 100%); color: white;">
+                    <h3>📅 My Bookings</h3>
+                    <p>View and manage your upcoming reservations</p>
+                    <button class="btn btn-secondary" style="background: white; color: #51cf66;" onclick="navigateTo('bookings.html')">View Bookings</button>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, #ffa502 0%, #ff8c00 100%); color: white;">
+                    <h3>💳 Billing</h3>
+                    <p>Pay your bills and view payment history</p>
+                    <button class="btn btn-secondary" style="background: white; color: #ffa502;" onclick="navigateTo('billing.html')">View Bills</button>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%); color: white;">
+                    <h3>📜 Booking History</h3>
+                    <p>Check your previous booking records</p>
+                    <button class="btn btn-secondary" style="background: white; color: #ff4757;" onclick="navigateTo('history.html')">View History</button>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, #3742fa 0%, #2f3542 100%); color: white;">
+                    <h3>🎧 Customer Support</h3>
+                    <p>Get help from our support team</p>
+                    <button class="btn btn-secondary" style="background: white; color: #3742fa;" onclick="navigateTo('support.html')">Get Support</button>
+                </div>
+                
+                <div class="card" style="background: linear-gradient(135deg, #2ed573 0%, #26de81 100%); color: white;">
+                    <h3>👤 My Profile</h3>
+                    <p>Update your personal information</p>
+                    <button class="btn btn-secondary" style="background: white; color: #2ed573;" onclick="showProfile()">View Profile</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Quick Stats</h2>
+            <div class="grid grid-3">
+                <div class="text-center">
+                    <h3 style="color: #667eea; font-size: 2em;" id="totalBookings">0</h3>
+                    <p>Total Bookings</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #51cf66; font-size: 2em;" id="upcomingBookings">0</h3>
+                    <p>Upcoming Stays</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #ffa502; font-size: 2em;" id="pendingBills">0</h3>
+                    <p>Pending Bills</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Featured Rooms</h2>
+            <div class="grid grid-3">
+                <div class="card" style="text-align: center;">
+                    <h3>🛏️ Single Room</h3>
+                    <p style="color: #666;">Perfect for solo travelers</p>
+                    <p style="font-size: 24px; color: #667eea; font-weight: bold;">$100/night</p>
+                    <button class="btn btn-primary" onclick="navigateTo('reservation.html')">Book Now</button>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3>🛏️ Double Room</h3>
+                    <p style="color: #666;">Ideal for couples</p>
+                    <p style="font-size: 24px; color: #667eea; font-weight: bold;">$150/night</p>
+                    <button class="btn btn-primary" onclick="navigateTo('reservation.html')">Book Now</button>
+                </div>
+                
+                <div class="card" style="text-align: center;">
+                    <h3>🏨 Suite</h3>
+                    <p style="color: #666;">Luxury accommodation</p>
+                    <p style="font-size: 24px; color: #667eea; font-weight: bold;">$250/night</p>
+                    <button class="btn btn-primary" onclick="navigateTo('reservation.html')">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // Update user stats on page load
+        window.addEventListener('load', function() {
+            updateStats();
+        });
+        
+        function updateStats() {
+            const currentUser = JSON.parse(localStorage.getItem('hotelCurrentUser') || '{}');
+            const userId = currentUser.id;
+            
+            // Get user's bookings
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const userBookings = bookings.filter(b => b.userId === userId);
+            
+            // Get user's bills
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            const userBills = bills.filter(b => b.userId === userId);
+            
+            // Calculate stats
+            const totalBookings = userBookings.length;
+            const today = new Date();
+            const upcomingBookings = userBookings.filter(b => new Date(b.checkIn) > today).length;
+            const pendingBills = userBills.filter(b => b.status === 'pending').length;
+            
+            // Update display
+            document.getElementById('totalBookings').textContent = totalBookings;
+            document.getElementById('upcomingBookings').textContent = upcomingBookings;
+            document.getElementById('pendingBills').textContent = pendingBills;
+        }
+        
+        function showProfile() {
+            const currentUser = JSON.parse(localStorage.getItem('hotelCurrentUser') || '{}');
+            
+            const profileHtml = `
+                <div class="card">
+                    <h2>My Profile</h2>
+                    <div class="grid grid-2">
+                        <div>
+                            <p><strong>First Name:</strong> ${currentUser.firstName || 'N/A'}</p>
+                            <p><strong>Last Name:</strong> ${currentUser.lastName || 'N/A'}</p>
+                            <p><strong>Username:</strong> ${currentUser.username || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${currentUser.email || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p><strong>Phone:</strong> ${currentUser.phone || 'N/A'}</p>
+                            <p><strong>Role:</strong> ${currentUser.role || 'customer'}</p>
+                            <p><strong>Member Since:</strong> ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="closeProfile()">Close</button>
+                    </div>
+                </div>
+            `;
+            
+            // Show profile in a modal or replace content
+            const container = document.querySelector('.container');
+            container.innerHTML = profileHtml;
+        }
+        
+        function closeProfile() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>

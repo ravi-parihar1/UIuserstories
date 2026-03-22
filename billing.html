@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Billing</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('customer-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('reservation.html')">Reservation</a></li>
+                    <li><a href="#" onclick="navigateTo('billing.html')">Billing Page</a></li>
+                    <li><a href="#" onclick="navigateTo('history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('bookings.html')">Bookings</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Contact Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Guest</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">Billing & Payment</h1>
+            <p style="color: #666; margin-bottom: 30px;">Manage your bills and payments</p>
+            
+            <div class="grid grid-2">
+                <div>
+                    <h2>Generate Bill</h2>
+                    <form id="billForm" onsubmit="handleBillGeneration(event)">
+                        <div class="form-group">
+                            <label for="bookingSelect">Select Booking</label>
+                            <select id="bookingSelect" required>
+                                <option value="">Select a booking to generate bill</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Generate Bill</button>
+                    </form>
+                </div>
+                
+                <div>
+                    <h2>Payment Methods</h2>
+                    <div class="card">
+                        <h3>💳 Credit Card</h3>
+                        <p>We accept Visa, MasterCard, and American Express</p>
+                    </div>
+                    <div class="card">
+                        <h3>📱 Mobile Payment</h3>
+                        <p>Pay with Apple Pay, Google Pay, or PayPal</p>
+                    </div>
+                    <div class="card">
+                        <h3>💰 Cash</h3>
+                        <p>Pay at the front desk during check-out</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="billDetails"></div>
+        
+        <div class="card">
+            <h2>Payment History</h2>
+            <div id="paymentHistory">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            loadUserBookings();
+            loadPaymentHistory();
+        });
+        
+        function loadUserBookings() {
+            const currentUser = JSON.parse(localStorage.getItem('hotelCurrentUser') || '{}');
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const userBookings = bookings.filter(b => b.userId === currentUser.id && b.status === 'confirmed');
+            
+            const bookingSelect = document.getElementById('bookingSelect');
+            bookingSelect.innerHTML = '<option value="">Select a booking to generate bill</option>';
+            
+            userBookings.forEach(booking => {
+                const option = document.createElement('option');
+                option.value = booking.id;
+                option.textContent = `Booking #${booking.id} - ${booking.roomType} (${booking.checkIn} to ${booking.checkOut})`;
+                bookingSelect.appendChild(option);
+            });
+        }
+        
+        function handleBillGeneration(event) {
+            event.preventDefault();
+            const bookingId = parseInt(document.getElementById('bookingSelect').value);
+            generateBill(bookingId);
+        }
+        
+        function loadPaymentHistory() {
+            const currentUser = JSON.parse(localStorage.getItem('hotelCurrentUser') || '{}');
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            const userBills = bills.filter(b => b.userId === currentUser.id);
+            
+            const container = document.getElementById('paymentHistory');
+            
+            if (userBills.length === 0) {
+                container.innerHTML = '<p>No payment history found.</p>';
+                return;
+            }
+            
+            let html = '<div class="table-container"><table>';
+            html += '<thead><tr><th>Bill ID</th><th>Booking ID</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+            
+            userBills.forEach(bill => {
+                html += '<tr>';
+                html += `<td>${bill.id}</td>`;
+                html += `<td>${bill.bookingId}</td>`;
+                html += `<td>$${bill.totalAmount}</td>`;
+                html += `<td><span class="status-badge status-${bill.status}">${bill.status}</span></td>`;
+                html += `<td>${new Date(bill.createdAt).toLocaleDateString()}</td>`;
+                html += '<td>';
+                if (bill.status === 'pending') {
+                    html += `<button class="btn btn-success" onclick="processPayment(${bill.id})">Pay Now</button>`;
+                } else {
+                    html += `<button class="btn btn-secondary" onclick="printBill(${bill.id})">Print</button>`;
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

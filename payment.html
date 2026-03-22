@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Payment</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('customer-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('reservation.html')">Reservation</a></li>
+                    <li><a href="#" onclick="navigateTo('billing.html')">Billing Page</a></li>
+                    <li><a href="#" onclick="navigateTo('history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('bookings.html')">Bookings</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Contact Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Guest</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">Payment Processing</h1>
+            <p style="color: #666; margin-bottom: 30px;">Complete your payment securely</p>
+        </div>
+        
+        <div class="grid grid-2">
+            <div>
+                <div class="card">
+                    <h2>Order Summary</h2>
+                    <div id="paymentSummary">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Payment Method</h2>
+                    <form id="paymentForm" onsubmit="processPayment(event)">
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="paymentMethod" value="credit" checked onchange="updatePaymentForm()">
+                                💳 Credit/Debit Card
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="paymentMethod" value="mobile" onchange="updatePaymentForm()">
+                                📱 Mobile Payment
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>
+                                <input type="radio" name="paymentMethod" value="cash" onchange="updatePaymentForm()">
+                                💰 Cash at Hotel
+                            </label>
+                        </div>
+                        
+                        <div id="creditCardForm">
+                            <div class="form-group">
+                                <label for="cardNumber">Card Number</label>
+                                <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                            </div>
+                            <div class="form-group">
+                                <label for="cardName">Cardholder Name</label>
+                                <input type="text" id="cardName" placeholder="John Doe">
+                            </div>
+                            <div class="grid grid-2">
+                                <div class="form-group">
+                                    <label for="expiry">Expiry Date</label>
+                                    <input type="text" id="expiry" placeholder="MM/YY" maxlength="5">
+                                </div>
+                                <div class="form-group">
+                                    <label for="cvv">CVV</label>
+                                    <input type="text" id="cvv" placeholder="123" maxlength="3">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="mobileForm" class="hidden">
+                            <div class="form-group">
+                                <label for="mobileNumber">Mobile Number</label>
+                                <input type="tel" id="mobileNumber" placeholder="+1 234 567 8900">
+                            </div>
+                            <div class="form-group">
+                                <label for="mobileProvider">Payment Provider</label>
+                                <select id="mobileProvider">
+                                    <option value="apple">Apple Pay</option>
+                                    <option value="google">Google Pay</option>
+                                    <option value="paypal">PayPal</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="cashForm" class="hidden">
+                            <div class="card" style="background: #f8f9fa;">
+                                <h3>Cash Payment Instructions</h3>
+                                <p>Please visit the front desk to complete your payment. Our staff will be available 24/7 to assist you.</p>
+                                <p><strong>Address:</strong> 123 Hotel Street, City, State 12345</p>
+                                <p><strong>Phone:</strong> +1 (555) 123-4567</p>
+                            </div>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">Complete Payment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <h2>Security & Trust</h2>
+                    <div class="grid grid-2">
+                        <div class="text-center">
+                            <div style="font-size: 2em;">🔒</div>
+                            <h4>Secure Payment</h4>
+                            <p>Your payment information is encrypted and secure</p>
+                        </div>
+                        <div class="text-center">
+                            <div style="font-size: 2em;">✅</div>
+                            <h4>Verified</h4>
+                            <p>We are PCI DSS compliant</p>
+                        </div>
+                        <div class="text-center">
+                            <div style="font-size: 2em;">🛡️</div>
+                            <h4>Protection</h4>
+                            <p>Full fraud protection</p>
+                        </div>
+                        <div class="text-center">
+                            <div style="font-size: 2em;">💬</div>
+                            <h4>Support</h4>
+                            <p>24/7 customer support</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2>Refund Policy</h2>
+                    <ul style="color: #666; line-height: 1.6;">
+                        <li>Full refund if cancelled 24 hours before check-in</li>
+                        <li>50% refund if cancelled 12-24 hours before check-in</li>
+                        <li>No refund for cancellations less than 12 hours before check-in</li>
+                        <li>Refunds processed within 5-7 business days</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        let currentBillId = null;
+        
+        window.addEventListener('load', function() {
+            loadPaymentSummary();
+            
+            // Format card number input
+            document.getElementById('cardNumber').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '');
+                let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                e.target.value = formattedValue;
+            });
+            
+            // Format expiry date input
+            document.getElementById('expiry').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                }
+                e.target.value = value;
+            });
+            
+            // Only allow numbers for CVV
+            document.getElementById('cvv').addEventListener('input', function(e) {
+                e.target.value = e.target.value.replace(/\D/g, '');
+            });
+        });
+        
+        function loadPaymentSummary() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const billId = urlParams.get('billId');
+            
+            if (billId) {
+                currentBillId = parseInt(billId);
+                const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+                const bill = bills.find(b => b.id === currentBillId);
+                
+                if (bill) {
+                    const summaryHtml = `
+                        <div class="grid grid-2">
+                            <div>
+                                <p><strong>Bill ID:</strong> #${bill.id}</p>
+                                <p><strong>Room:</strong> ${bill.roomType} (Room ${bill.roomId})</p>
+                                <p><strong>Check-in:</strong> ${bill.checkIn}</p>
+                                <p><strong>Check-out:</strong> ${bill.checkOut}</p>
+                                <p><strong>Nights:</strong> ${bill.nights}</p>
+                            </div>
+                            <div>
+                                <p><strong>Room Rate:</strong> $${bill.roomRate}/night</p>
+                                <p><strong>Subtotal:</strong> $${bill.totalAmount}</p>
+                                <p><strong>Tax:</strong> $${(bill.totalAmount * 0.1).toFixed(2)}</p>
+                                <p><strong>Total Amount:</strong> <span style="font-size: 1.2em; color: #667eea;">$${(bill.totalAmount * 1.1).toFixed(2)}</span></p>
+                            </div>
+                        </div>
+                    `;
+                    document.getElementById('paymentSummary').innerHTML = summaryHtml;
+                }
+            } else {
+                document.getElementById('paymentSummary').innerHTML = '<p>No bill information found. Please go back to billing page.</p>';
+            }
+        }
+        
+        function updatePaymentForm() {
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            
+            document.getElementById('creditCardForm').classList.add('hidden');
+            document.getElementById('mobileForm').classList.add('hidden');
+            document.getElementById('cashForm').classList.add('hidden');
+            
+            if (paymentMethod === 'credit') {
+                document.getElementById('creditCardForm').classList.remove('hidden');
+            } else if (paymentMethod === 'mobile') {
+                document.getElementById('mobileForm').classList.remove('hidden');
+            } else if (paymentMethod === 'cash') {
+                document.getElementById('cashForm').classList.remove('hidden');
+            }
+        }
+        
+        function processPayment(event) {
+            event.preventDefault();
+            
+            if (!currentBillId) {
+                showNotification('No bill found for payment!', 'error');
+                return;
+            }
+            
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            
+            // Simulate payment processing
+            showNotification('Processing payment...', 'success');
+            
+            setTimeout(() => {
+                // Update bill status to paid
+                const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+                const bill = bills.find(b => b.id === currentBillId);
+                
+                if (bill) {
+                    bill.status = 'paid';
+                    bill.paidAt = new Date().toISOString();
+                    bill.paymentMethod = paymentMethod;
+                    localStorage.setItem('hotelBills', JSON.stringify(bills));
+                    
+                    // Update room status to available
+                    const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+                    const booking = bookings.find(b => b.id === bill.bookingId);
+                    if (booking) {
+                        const rooms = JSON.parse(localStorage.getItem('hotelRooms') || '[]');
+                        const room = rooms.find(r => r.id === booking.roomId);
+                        if (room) {
+                            room.status = 'available';
+                            localStorage.setItem('hotelRooms', JSON.stringify(rooms));
+                        }
+                    }
+                    
+                    showNotification('Payment processed successfully! Thank you for your stay.', 'success');
+                    showCheckoutNotification();
+                    
+                    // Redirect to home after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'customer-home.html';
+                    }, 3000);
+                }
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

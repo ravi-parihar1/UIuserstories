@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Booking History</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('customer-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('reservation.html')">Reservation</a></li>
+                    <li><a href="#" onclick="navigateTo('billing.html')">Billing Page</a></li>
+                    <li><a href="#" onclick="navigateTo('history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('bookings.html')">Bookings</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Contact Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Guest</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">My Booking History</h1>
+            <p style="color: #666; margin-bottom: 30px;">View your previous booking records</p>
+            
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="displayBookings()">🔄 Refresh</button>
+                <button class="btn btn-success" onclick="navigateTo('reservation.html')">📅 New Booking</button>
+                <button class="btn btn-warning" onclick="exportHistory()">📊 Export History</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Previous Bookings</h2>
+            <div id="bookingsList">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Booking Summary</h2>
+            <div class="grid grid-4">
+                <div class="text-center">
+                    <h3 style="color: #667eea; font-size: 2em;" id="totalHistoryCount">0</h3>
+                    <p>Total Bookings</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #51cf66; font-size: 2em;" id="completedCount">0</h3>
+                    <p>Completed Stays</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #ffa502; font-size: 2em;" id="cancelledCount">0</h3>
+                    <p>Cancelled</p>
+                </div>
+                <div class="text-center">
+                    <h3 style="color: #ff4757; font-size: 2em;" id="totalHistorySpent">$0</h3>
+                    <p>Total Spent</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            displayBookings();
+            updateHistoryStats();
+        });
+        
+        function updateHistoryStats() {
+            const currentUser = JSON.parse(localStorage.getItem('hotelCurrentUser') || '{}');
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            
+            const userBookings = bookings.filter(b => b.userId === currentUser.id);
+            const userBills = bills.filter(b => b.userId === currentUser.id);
+            const today = new Date();
+            
+            const totalBookings = userBookings.length;
+            const completedBookings = userBookings.filter(b => new Date(b.checkOut) < today).length;
+            const cancelledBookings = userBookings.filter(b => b.status === 'cancelled').length;
+            const totalSpent = userBills.filter(b => b.status === 'paid').reduce((sum, bill) => sum + bill.totalAmount, 0);
+            
+            document.getElementById('totalHistoryCount').textContent = totalBookings;
+            document.getElementById('completedCount').textContent = completedBookings;
+            document.getElementById('cancelledCount').textContent = cancelledBookings;
+            document.getElementById('totalHistorySpent').textContent = `$${totalSpent}`;
+        }
+        
+        function exportHistory() {
+            const currentUser = JSON.parse(localStorage.getItem('hotelCurrentUser') || '{}');
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const userBookings = bookings.filter(b => b.userId === currentUser.id);
+            
+            const dataStr = JSON.stringify(userBookings, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `booking-history-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showNotification('Booking history exported successfully!', 'success');
+        }
+    </script>
+</body>
+</html>

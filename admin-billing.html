@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Reservation - Admin Billing</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">🏨 Hotel Reservation Admin</div>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#" onclick="navigateTo('admin-home.html')">Home</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-reservations.html')">Reservations</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-billing.html')">Billing</a></li>
+                    <li><a href="#" onclick="navigateTo('admin-history.html')">History</a></li>
+                    <li><a href="#" onclick="navigateTo('room-status.html')">Room Status</a></li>
+                    <li><a href="#" onclick="navigateTo('support.html')">Support</a></li>
+                </ul>
+            </nav>
+            <div class="user-info">
+                <span class="welcome-text">Welcome Admin</span>
+                <button class="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="color: #667eea; margin-bottom: 10px;">Billing & Invoice Management</h1>
+            <p style="color: #666; margin-bottom: 30px;">Generate invoices and manage payments</p>
+            
+            <div class="grid grid-2">
+                <div>
+                    <h2>Generate Invoice</h2>
+                    <form id="invoiceForm" onsubmit="handleInvoiceGeneration(event)">
+                        <div class="form-group">
+                            <label for="userId">User ID</label>
+                            <input type="text" id="userId" name="userId" required placeholder="Enter user ID for invoice generation">
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingSelect">Select Booking</label>
+                            <select id="bookingSelect" required>
+                                <option value="">Select a booking</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Generate Invoice</button>
+                    </form>
+                </div>
+                
+                <div>
+                    <h2>Revenue Summary</h2>
+                    <div class="grid grid-2">
+                        <div class="text-center">
+                            <h3 style="color: #51cf66; font-size: 2em;" id="totalRevenue">$0</h3>
+                            <p>Total Revenue</p>
+                        </div>
+                        <div class="text-center">
+                            <h3 style="color: #ffa502; font-size: 2em;" id="pendingPayments">$0</h3>
+                            <p>Pending Payments</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="invoiceDetails"></div>
+        
+        <div class="card">
+            <h2>All Bills</h2>
+            <div id="allBills">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        window.addEventListener('load', function() {
+            loadAllBookings();
+            loadAllBills();
+            updateRevenueSummary();
+        });
+        
+        function loadAllBookings() {
+            const bookings = JSON.parse(localStorage.getItem('hotelBookings') || '[]');
+            const bookingSelect = document.getElementById('bookingSelect');
+            bookingSelect.innerHTML = '<option value="">Select a booking</option>';
+            
+            bookings.forEach(booking => {
+                const option = document.createElement('option');
+                option.value = booking.id;
+                option.textContent = `Booking #${booking.id} - ${booking.username} - ${booking.roomType}`;
+                bookingSelect.appendChild(option);
+            });
+        }
+        
+        function handleInvoiceGeneration(event) {
+            event.preventDefault();
+            const bookingId = parseInt(document.getElementById('bookingSelect').value);
+            generateBill(bookingId);
+        }
+        
+        function loadAllBills() {
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            const container = document.getElementById('allBills');
+            
+            if (bills.length === 0) {
+                container.innerHTML = '<p>No bills found.</p>';
+                return;
+            }
+            
+            let html = '<div class="table-container"><table>';
+            html += '<thead><tr><th>Bill ID</th><th>Customer</th><th>Booking ID</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+            
+            bills.forEach(bill => {
+                html += '<tr>';
+                html += `<td>${bill.id}</td>`;
+                html += `<td>${bill.username}</td>`;
+                html += `<td>${bill.bookingId}</td>`;
+                html += `<td>$${bill.totalAmount}</td>`;
+                html += `<td><span class="status-badge status-${bill.status}">${bill.status}</span></td>`;
+                html += `<td>${new Date(bill.createdAt).toLocaleDateString()}</td>`;
+                html += '<td>';
+                html += `<button class="btn btn-secondary" onclick="printBill(${bill.id})">Print</button>`;
+                if (bill.status === 'pending') {
+                    html += `<button class="btn btn-success" onclick="markAsPaid(${bill.id})">Mark Paid</button>`;
+                }
+                html += '</td>';
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+        }
+        
+        function updateRevenueSummary() {
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            const totalRevenue = bills.filter(b => b.status === 'paid').reduce((sum, bill) => sum + bill.totalAmount, 0);
+            const pendingPayments = bills.filter(b => b.status === 'pending').reduce((sum, bill) => sum + bill.totalAmount, 0);
+            
+            document.getElementById('totalRevenue').textContent = `$${totalRevenue}`;
+            document.getElementById('pendingPayments').textContent = `$${pendingPayments}`;
+        }
+        
+        function markAsPaid(billId) {
+            const bills = JSON.parse(localStorage.getItem('hotelBills') || '[]');
+            const bill = bills.find(b => b.id === billId);
+            
+            if (bill) {
+                bill.status = 'paid';
+                bill.paidAt = new Date().toISOString();
+                localStorage.setItem('hotelBills', JSON.stringify(bills));
+                
+                showNotification('Bill marked as paid!', 'success');
+                loadAllBills();
+                updateRevenueSummary();
+            }
+        }
+    </script>
+</body>
+</html>
