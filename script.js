@@ -107,6 +107,15 @@ function handleRegistration(event) {
     event.preventDefault();
     
     const formData = new FormData(event.target);
+    const password = formData.get('password');
+    const confirmPassword = formData.get('confirmPassword');
+    
+    // Check if passwords match
+    if (password !== confirmPassword) {
+        showNotification('Passwords do not match!', 'error');
+        return;
+    }
+    
     const userData = {
         id: Date.now(),
         username: formData.get('username'),
